@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% load course %}
+
+{% block title %}
+    Module {{ Module.order }}: {{ module.title }}
+{% endblock %}
+
+{% block content %}
+{% with course=module.course %}
+    <div class="container my-4">
+        <h1 class="display-5">Course "{{ course.title }}"</h1>
+        <div class="row">
+            <div class="col-md-4">
+                <h3>Modules</h3>
+                <ul id="modules" class="list-group mb-3">
+                    {% for m in course.modules.all %}
+                        <li class="list-group-item {% if m == module %} active {% endif %}" data-id="{{ m.id }}">
+                            <a href="{% url 'module_content_list' m.id %}" class="text-decoration-none text-dark d-flex justify-content-between">
+                                <span>
+                                    Module <span class="order">{{ m.order }}</span>: {{ m.title }}
+                                </span>
+                            </a>
+                        </li>
+                    {% empty %}
+                        <li class="list-group-item">No modules yet.</li>
+                    {% endfor %}
+                </ul>
+                <p>
+                    <a href="{% url "course_module_update" course.id %}" class="btn btn-primary btn-sm">Edit Modules</a>
+                </p>
+            </div>
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Module {{ module.order }}: {{ module.title }}</h2>
+                    </div>
+                    <div class="card-body">
+                        <h3>Module contents:</h3>
+                        <div id="module-contents">
+                            {% for content in module.contents.all %}
+                                <div class="mb-3 p-2 border rounded" data-id="{{ content.id }}">
+                                    {% with item=content.item %}
+                                        <p class="mb-1">{{ item }} ({{ item|model_name }})</p>
+                                        <div class="d-flex justify-content-between">
+                                            <a href="{% url "module_content_update" module.id item|model_name item.id %}" class="btn btn-outline-secondary btn-sm">
+                                                Edit
+                                            </a>
+                                            <form action="{% url "module_content_delete" content.id %}" method="post" class="d-inline">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-outline-danger btn-sm">Delete</button>
+                                            </form>
+                                        </div>
+                                    {% endwith %}
+                                </div>
+                            {% empty %}
+                                <p class="text-muted">This module has no content yet.</p>
+                            {% endfor %}
+                        </div>
+                        <h3>Add new content:</h3>
+                        <ul class="list-inline">
+                            <li class="list-inline-item">
+                                <a href="{% url "module_content_create" module.id "text" %}" class="btn btn-info btn-sm">Text</a>
+                            </li>
+                            <li class="list-inline-item">
+                                <a href="{% url "module_content_create" module.id "image" %}" class="btn btn-info btn-sm">Image</a>
+                            </li>
+                            <li class="list-inline-item">
+                                <a href="{% url "module_content_create" module.id "video" %}" class="btn btn-info btn-sm">Video</a>
+                            </li>
+                            <li class="list-inline-item">
+                                <a href="{% url "module_content_create" module.id "file" %}" class="btn btn-info btn-sm">File</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endwith %}
+{% endblock %}
+
+{% block include_js %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5sotable/0.13.3/html5sortable.min.js"></script>
+{% endblock %}
+
+
+{% block domready %}
+    var options = {
+        method: 'POST',
+        mode: 'same-origin'
+    }
+    const moduleOrderUrl = '{% url "module_order" %}';
+
+    sortable('#modules',{
+        forcePlaceholderSize: true,
+        placeholderClass: 'placeholder'
+    })[0].addEventListner('sortable',function(e){
+        modulesOrder = {};
+        var modules = document.querySelectorAll('#modules li');
+        modules.forEach(function(module,index){
+        modulesOrder[module.dataset.id] = index;
+        module.querySelector('.order').innerHTML = index + 1;
+        options['body'] = JSON.stringify(modulesOrder);
+        fetch(modulesOrderUrl,options)
+        });
+    });
+{% endblock %}

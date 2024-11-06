@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}
+{% if object %}
+    Edit content "{{ object.title }}"
+{% else %}
+    Add new content
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="mb-4">
+        {% if object %}
+            Edit content {{ object.id }}
+        {% else %}
+            Add new content 
+        {% endif %}
+    </h1>
+    <div class="card p-4 shadow-sm">
+        <h2 class="card-title">Course Info</h2>
+        <form action="" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="form-group">
+                {{ form.as_p }}
+            </div>
+            <button type="submit" class="btn btn-primary mt-3">Save content</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

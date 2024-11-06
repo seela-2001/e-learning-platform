@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}
+Delete Course
+{% endblock %}
+
+{% block content %}
+    <div class="container mt-5">
+        <h1 class="text-danger text-center">Delete Course: "{{ course.title }}"</h1>
+        <div class="card p-4 mt-4 shadow-sm">
+            <form action="" method="post">
+                {% csrf_token %}
+                <p class="text-center">Are you sure you want to delete "<strong>{{ course.title }}</strong>"?</p>
+                <div class="text-center mt-3">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                    <a href="{% url 'manage_course_list' %}" class="btn btn-secondary ms-2">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

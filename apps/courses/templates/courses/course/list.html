@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if subject %}
+        {{ subject.title }} courses
+    {% else %}
+        All courses
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    <div class="container mt-4">
+        <h1 class="mb-4">
+            {% if subject %}
+                {{ subject.title }} courses
+            {% else %}
+                All courses
+            {% endif %}
+        </h1>
+
+        <div class="row">
+            <div class="col-md-3">
+                <h3>Subjects</h3>
+                <ul id="modules" class="list-group">
+                    <li class="list-group-item {% if not subject %} active{% endif %}">
+                        <a href="{% url 'course_list' %}" class="{% if not subject %}text-white{% endif %}">All</a>
+                    </li>
+                    {% for s in subjects %}
+                        <li class="list-group-item {% if subject == s %} active{% endif %}">
+                            <a href="{% url 'course_list_subject' s.slug %}" class="{% if subject == s %}text-white{% endif %}">
+                                {{ s.title }}
+                                <br>
+                                <small class="text-muted">
+                                    {{ s.total_courses }} course{{ s.total_courses|pluralize }}
+                                </small>
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <div class="col-md-9">
+                <div class="module">
+                    {% for course in courses %}
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h3 class="card-title">
+                                    <a href="{% url 'course_detail' course.slug %}">
+                                        {{ course.title }}
+                                    </a>
+                                </h3>
+                                <p class="card-text">
+                                    <a href="{% url 'course_list_subject' course.subject.slug %}" class="text-decoration-none">
+                                        {{ course.subject }}
+                                    </a>.
+                                    {{ course.total_modules }} modules.
+                                    Instructor: {{ course.owner.get_full_name }}
+                                </p>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
